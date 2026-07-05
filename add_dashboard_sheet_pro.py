@@ -1,52 +1,26 @@
 import pandas as pd
 import streamlit as st
+import os  # ضفناها هنا عشان المشكلة تتحل
 
 def add_dashboard_sheet_pro():
-    file_path = r"D:\log\RAAS ELHEKMA STATION LOG.xlsm"
+    file_path = "RAAS ELHEKMA STATION LOG.xlsm"
     
     if not os.path.exists(file_path):
-        print("❌ الملف غير موجود!")
+        st.error("الملف غير موجود في السيرفر!")
         return
 
-    print("🚀 جاري فتح إكسيل لإضافة الشيت...")
-    excel = win32.gencache.EnsureDispatch('Excel.Application')
-    excel.Visible = False
-    excel.DisplayAlerts = False
-    
     try:
-        wb = excel.Workbooks.Open(file_path)
-        
-        # التأكد من عدم وجود شيت بنفس الاسم عشان ميعملش خطأ
-        try:
-            wb.Sheets("Dashboard").Delete()
-        except:
-            pass
+        # قراءة وتحديث ملف الإكسيل
+        with pd.ExcelWriter(file_path, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
+            df = pd.DataFrame({'Status': ['Active'], 'Value': [100]})
+            df.to_excel(writer, sheet_name='Dashboard', index=False)
             
-        # إنشاء شيت جديد ووضعه في البداية
-        ws = wb.Sheets.Add(Before=wb.Sheets(1))
-        ws.Name = "Dashboard"
+        st.success("تم تحديث شيت Dashboard بنجاح!")
         
-        # إضافة زر تشغيل الداش بورد (رابط)
-        ws.Range("B2").Value = "📊 لوحة التحكم التفاعلية"
-        ws.Range("B2").Font.Size = 16
-        ws.Range("B2").Font.Bold = True
-        
-        ws.Range("B4").Value = "اضغط هنا لتشغيل الداش بورد:"
-        
-        # إضافة رابط (Hyperlink)
-        ws.Hyperlinks.Add(Anchor=ws.Range("B5"), Address="http://localhost:8501", TextToDisplay="🚀 تشغيل الداش بورد الآن")
-        
-        ws.Range("B5").Font.Size = 14
-        ws.Range("B5").Font.Color = 0xFF0000 # لون أحمر
-        
-        wb.Save()
-        wb.Close()
-        print("✅ تم بنجاح إضافة شيت 'Dashboard' في ملف الإكسيل!")
-
     except Exception as e:
-        print(f"❌ حدث خطأ: {e}")
-    finally:
-        excel.Quit()
+        st.error(f"حدث خطأ: {e}")
 
 if __name__ == "__main__":
-    add_dashboard_sheet_pro()
+    st.title("Ras Elhekma Dashboard Manager")
+    if st.button("تحديث الداش بورد"):
+        add_dashboard_sheet_pro()
