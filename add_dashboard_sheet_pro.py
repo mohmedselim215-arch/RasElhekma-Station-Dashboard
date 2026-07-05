@@ -1,22 +1,17 @@
 import streamlit as st
 import pandas as pd
-import os
 
-st.title("Ras Elhekma Dashboard Manager")
+st.title("Ras Elhekma Dashboard")
 
-if st.button("تحديث الداش بورد"):
-    st.write("بيحاول يفتح الملف...")
-    file_path = "RAAS ELHEKMA STATION LOG.xlsm"
+# قراءة أول شيت في ملف الإكسيل مباشرة
+file_path = "RAAS ELHEKMA STATION LOG.xlsm"
+
+try:
+    # قراءة البيانات
+    df = pd.read_excel(file_path, sheet_name=0) # sheet_name=0 يعني أول شيت
     
-    if not os.path.exists(file_path):
-        st.error("الملف مش موجود في السيرفر!")
-    else:
-        try:
-            st.write("جاري الكتابة في ملف الإكسيل...")
-            writer = pd.ExcelWriter(file_path, engine='openpyxl', mode='a', if_sheet_exists='replace')
-            df = pd.DataFrame({'Status': ['Active'], 'Value': [100]})
-            df.to_excel(writer, sheet_name='Dashboard', index=False)
-            writer.close() 
-            st.success("تم التحديث بنجاح! 🚀")
-        except Exception as e:
-            st.error(f"خطأ: {e}")
+    st.write("بيانات المشروع:")
+    st.dataframe(df) # ده هيعرض الـ 400 سطر قدامك بجدول تقدر تتحكم فيه
+    
+except Exception as e:
+    st.error(f"مش عارف أفتح الملف: {e}")
