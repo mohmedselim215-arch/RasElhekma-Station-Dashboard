@@ -1,4 +1,7 @@
+TXT
 streamlit
 pandas
-openpyxl
 plotly
+openpyxl
+requests
+numpy
